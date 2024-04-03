@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from models.user import User
 from database import db
+import bcrypt
 
 
 app = Flask(__name__)
@@ -11,6 +12,13 @@ db.init_app(app)
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+
+def hash_password(password):
+    hashed_password = bcrypt.hashpw(str.encode(password), bcrypt.gensalt())
+    return hashed_password.decode()
+
+def check_password(password, user_password):
+    return bcrypt.checkpw(str.encode(password), str.encode(user_password))
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -25,7 +33,7 @@ def login():
 
     if username and password:
         user = User.query.filter_by(username=username).first()
-        if user and user.password == password:
+        if user and check_password(password, user.password):
             login_user(user)
             return jsonify({"message": "Autenticação realizada com sucesso"})
     return jsonify({"message": "Credenciais inválidas"}), 400
@@ -44,12 +52,11 @@ def create_user():
     data = request.json
     username = data.get('username')
     password = data.get('password')
-    role = data.get('role')
 
     if username and password:
         user = User.query.filter_by(username=username).first()
         if not user:
-            user = User(username=username, password=password, role='user')
+            user = User(username=username, password=hash_password(password), role='user')
             db.session.add(user)
             db.session.commit()
             return jsonify({"message": "Usuário cadastrado com sucesso"})
@@ -78,7 +85,7 @@ def update_user(id_user):
     if id_user != current_user.id and current_user.role == 'user':
         return jsonify({"message": "Operação não permitida"}), 403
     if user and data.get('password'):
-        user.password = data['password']
+        user.password = hash_password(data.get('password'))
         db.session.commit()
         return jsonify(
             {"message": f"Usuário {id_user} atualizado com sucesso"}
