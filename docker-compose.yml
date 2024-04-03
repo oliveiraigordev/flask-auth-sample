@@ -1,15 +1,14 @@
 services:
   db:
-    image: mysql:latest
+    image: postgres:latest
     restart: always
     environment:
-      MYSQL_USER: 'admin'
-      MYSQL_PASSWORD: 'admin123'
-      MYSQL_DATABASE: 'flask-crud'
-      MYSQL_ROOT_PASSWORD: 'root123'
+      POSTGRES_USER: 'admin'
+      POSTGRES_PASSWORD: 'admin123'
+      POSTGRES_DB: 'flask-crud'
     ports:
-      - "3306:3306"
+      - "5432:5432"
     expose:
-      - "3306"
+      - "5432"
     volumes:
-      - $HOME/.volumes/mysql:/var/lib/mysql
+      - $HOME/.volumes/postgres:/var/lib/postgresql

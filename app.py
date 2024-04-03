@@ -56,7 +56,7 @@ def create_user():
     return jsonify({"message": "Dados inválidos"}), 401
 
 
-@app.route('/user/<string:id_user>', methods=['GET'])
+@app.route('/user/<uuid:id_user>', methods=['GET'])
 @login_required
 def read_user(id_user):
     user = User.query.get(id_user)
@@ -68,7 +68,7 @@ def read_user(id_user):
     return jsonify({"message": "Usuário não encontrado"}), 404
 
 
-@app.route('/user/<string:id_user>', methods=['PUT'])
+@app.route('/user/<uuid:id_user>', methods=['PUT'])
 @login_required
 def update_user(id_user):
     data = request.json
@@ -82,7 +82,7 @@ def update_user(id_user):
     return jsonify({"message": "Usuário não encontrado"}), 404
 
 
-@app.route('/user/<string:id_user>', methods=['DELETE'])
+@app.route('/user/<uuid:id_user>', methods=['DELETE'])
 @login_required
 def delete(id_user):
     user = User.query.get(id_user)
